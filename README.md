@@ -1,2 +1,670 @@
-# GeoMatika
-Materi bangun datar kelas VII SMP
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GeoMatika — Jelajahi Bangun Datar</title>
+<style>
+:root{
+  --primary:#1e3a8a; --primary-light:#3b82f6; --accent:#f59e0b;
+  --bg:#f8fafc; --card:#fff; --text:#1e293b; --muted:#64748b;
+  --error:#dc2626; --success:#16a34a; --border:#cbd5e1;
+  --focus:#fbbf24; --shadow:0 4px 12px rgba(0,0,0,.06);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;font-family:'Segoe UI',system-ui,-apple-system,sans-serif;
+  background:var(--bg);color:var(--text);line-height:1.55}
+.hidden{display:none !important}
+.loading-overlay{position:fixed;inset:0;background:rgba(255,255,255,.9);display:flex;
+  justify-content:center;align-items:center;z-index:9999;font-weight:bold;color:var(--primary); font-size:1.2rem;}
+
+/* ========= LOGIN ========= */
+#login-screen{min-height:100vh;display:grid;place-items:center;
+  background:linear-gradient(135deg,#1e3a8a 0%,#3b82f6 50%,#60a5fa 100%);padding:1rem}
+.login-card{background:#fff;border-radius:16px;box-shadow:0 20px 40px rgba(0,0,0,.2);
+  max-width:440px;width:100%;padding:2.5rem 2rem}
+.brand{display:flex;align-items:center;gap:.75rem;justify-content:center;margin-bottom:.5rem}
+.brand-logo{width:48px;height:48px}
+.brand-name{font-size:1.75rem;font-weight:800;color:var(--primary);letter-spacing:-.5px}
+.brand-tagline{text-align:center;color:var(--muted);margin:0 0 1.75rem;font-size:.85rem}
+.form-title{font-size:1.15rem;margin:0 0 .25rem;text-align:center}
+.form-subtitle{text-align:center;color:var(--muted);font-size:.85rem;margin:0 0 1.5rem}
+.field{margin-bottom:1rem}
+.field label{display:block;font-weight:600;font-size:.875rem;margin-bottom:.35rem}
+.field .req{color:var(--error);margin-left:2px}
+.field input,.field select{width:100%;padding:.7rem .85rem;border:1.5px solid var(--border);
+  border-radius:8px;font-size:1rem;font-family:inherit;background:#fff;color:var(--text)}
+.field input:focus,.field select:focus{outline:none;border-color:var(--primary-light);
+  box-shadow:0 0 0 3px rgba(59,130,246,.15)}
+.field .error-msg{color:var(--error);font-size:.8rem;margin-top:.3rem;min-height:1rem}
+.field.invalid input,.field.invalid select{border-color:var(--error)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;
+  padding:.75rem 1.15rem;border:none;border-radius:8px;font-size:1rem;
+  font-weight:600;font-family:inherit;cursor:pointer;transition:background .15s,transform .1s}
+.btn:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+.btn-primary{background:var(--primary);color:#fff;width:100%}
+.btn-primary:hover{background:#172e6e}
+.btn-primary:active{transform:scale(.99)}
+.btn-secondary{background:#e2e8f0;color:var(--text)}
+.btn-secondary:hover{background:#cbd5e1}
+.btn-accent{background:var(--accent);color:#fff}
+.btn-accent:hover{background:#d97706}
+.login-note{margin-top:1.25rem;font-size:.72rem;color:var(--muted);text-align:center;
+  padding:.75rem;background:#f1f5f9;border-radius:8px;line-height:1.5}
+
+/* ========= APP SHELL ========= */
+.app-header{background:#fff;border-bottom:1px solid var(--border);
+  padding:.65rem 1.25rem;display:flex;justify-content:space-between;align-items:center;
+  position:sticky;top:0;z-index:100;flex-wrap:wrap;gap:.5rem}
+.app-brand{display:flex;align-items:center;gap:.5rem;font-weight:800;
+  color:var(--primary);font-size:1.1rem}
+.user-info{display:flex;align-items:center;gap:.6rem;font-size:.82rem;
+  color:var(--muted);flex-wrap:wrap}
+.user-info strong{color:var(--text)}
+.btn-logout{background:#fee2e2;color:var(--error);padding:.4rem .75rem;
+  font-size:.78rem;border-radius:6px;border:1px solid #fecaca;cursor:pointer;
+  font-family:inherit;font-weight:600}
+.btn-logout:hover{background:#fecaca}
+
+.app-nav{background:#fff;border-bottom:1px solid var(--border);
+  display:flex;overflow-x:auto;padding:0 .75rem;gap:0;scrollbar-width:thin}
+.app-nav button{background:none;border:none;padding:.85rem 1.1rem;
+  font-size:.9rem;font-weight:600;color:var(--muted);cursor:pointer;
+  border-bottom:3px solid transparent;white-space:nowrap;font-family:inherit;
+  transition:color .15s,border-color .15s}
+.app-nav button:hover{color:var(--primary)}
+.app-nav button.active{color:var(--primary);border-bottom-color:var(--primary)}
+
+main.container{max-width:1100px;margin:0 auto;padding:1.5rem 1.25rem 3rem}
+.welcome-banner{background:linear-gradient(135deg,var(--primary),var(--primary-light));
+  color:#fff;padding:2rem;border-radius:14px;margin-bottom:1.5rem}
+.welcome-banner h1{margin:0 0 .5rem;font-size:1.5rem}
+.welcome-banner p{margin:0;opacity:.92;font-size:.95rem}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:1rem;margin-top:1rem}
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;
+  padding:1.25rem;transition:box-shadow .15s,transform .15s;cursor:pointer;
+  text-align:left;font-family:inherit;color:inherit}
+.card:hover{box-shadow:0 6px 16px rgba(0,0,0,.08);transform:translateY(-2px)}
+.card h3{margin:0 0 .5rem;font-size:1rem;color:var(--primary)}
+.card p{margin:0;font-size:.85rem;color:var(--muted)}
+.card .badge{display:inline-block;margin-top:.5rem;font-size:.7rem;
+  padding:.15rem .5rem;border-radius:999px;background:#dbeafe;color:#1e40af;font-weight:600}
+
+/* ========= MATERI ========= */
+.materi-layout{display:grid;grid-template-columns:220px 1fr;gap:1.25rem;align-items:start}
+.materi-menu{background:#fff;border:1px solid var(--border);border-radius:10px;
+  padding:.5rem;position:sticky;top:130px;max-height:calc(100vh - 150px);overflow-y:auto}
+.materi-menu button{display:block;width:100%;text-align:left;background:none;
+  border:none;padding:.6rem .75rem;border-radius:6px;font-size:.85rem;
+  font-weight:500;color:var(--text);cursor:pointer;font-family:inherit;
+  margin-bottom:2px}
+.materi-menu button:hover{background:#f1f5f9}
+.materi-menu button.active{background:#dbeafe;color:var(--primary);font-weight:600}
+.materi-content{background:#fff;border:1px solid var(--border);
+  border-radius:10px;padding:1.5rem;min-height:300px}
+.materi-content h2{margin-top:0;color:var(--primary)}
+.materi-content h3{color:var(--primary);margin-top:1.5rem;font-size:1rem}
+.materi-content ul{margin:.5rem 0;padding-left:1.25rem}
+.materi-content li{margin-bottom:.35rem}
+
+.rumus{background:#f0f4fa;padding:.85rem 1.25rem;border-radius:8px;
+  font-family:inherit;font-size:1.05rem;font-weight:600;color:var(--primary);
+  margin:.75rem 0;border-left:4px solid var(--primary-light);
+  box-shadow: 0 2px 4px rgba(0,0,0,.02);letter-spacing: .3px;}
+.miskonsepsi{background:#fef3c7;border-left:4px solid var(--accent);
+  padding:.75rem 1rem;border-radius:6px;margin:.75rem 0;font-size:.9rem}
+.pertanyaan-pemantik{background:#dbeafe;border-left:4px solid var(--primary-light);
+  padding:.75rem 1rem;border-radius:6px;margin:.75rem 0;font-size:.9rem}
+
+/* ========= LAB ========= */
+.lab-card{background:#fff;border:1px solid var(--border);border-radius:12px;
+  padding:1.25rem;margin-bottom:1.25rem}
+.lab-card h3{margin-top:0;color:var(--primary);font-size:1.05rem}
+.lab-content{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;align-items:start}
+.lab-svg-wrap{background:#f8fafc;border-radius:8px;padding:1rem;
+  display:flex;justify-content:center;align-items:center;min-height:220px}
+.lab-svg-wrap svg{max-width:100%;height:auto}
+.lab-controls label{display:block;font-size:.85rem;font-weight:600;margin-top:.75rem}
+.lab-controls input[type=range]{width:100%;margin-top:.25rem}
+.lab-controls output{font-family:inherit;color:var(--primary);
+  font-weight:700;font-size:1rem;margin-left:.5rem}
+.lab-results{background:#f0f4fa;padding:.85rem;border-radius:8px;
+  margin-top:.75rem;font-family:inherit;font-size:.95rem;
+  font-weight:600;color:var(--text);line-height:1.6}
+.lab-results div{padding:.15rem 0}
+
+/* ========= LATIHAN ========= */
+.q-card{background:#fff;border:1px solid var(--border);border-radius:12px;
+  padding:1.5rem;margin-bottom:1rem}
+.q-header{display:flex;justify-content:space-between;align-items:center;
+  flex-wrap:wrap;gap:.5rem;margin-bottom:1rem;padding-bottom:.75rem;
+  border-bottom:1px solid var(--border)}
+.q-indikator{font-size:.75rem;background:#dbeafe;color:#1e40af;
+  padding:.2rem .6rem;border-radius:999px;font-weight:600}
+.q-level{font-size:.75rem;background:#fef3c7;color:#92400e;
+  padding:.2rem .6rem;border-radius:999px;font-weight:600}
+.q-konteks{background:#f8fafc;padding:.75rem 1rem;border-radius:8px;
+  margin:.75rem 0;font-size:.9rem;line-height:1.6}
+.q-pertanyaan{font-weight:600;margin:.75rem 0}
+.q-options label{display:block;padding:.6rem .85rem;border:1.5px solid var(--border);
+  border-radius:8px;margin-bottom:.5rem;cursor:pointer;font-size:.9rem;
+  transition:border-color .15s,background .15s;font-weight:400}
+.q-options label:hover{background:#f8fafc;border-color:var(--primary-light)}
+.q-options input{margin-right:.5rem}
+.q-options label.selected{border-color:var(--primary);background:#eff6ff}
+.q-options label.correct{border-color:var(--success);background:#f0fdf4}
+.q-options label.incorrect{border-color:var(--error);background:#fef2f2}
+.q-text-answer{width:100%;padding:.7rem .85rem;border:1.5px solid var(--border);
+  border-radius:8px;font-family:inherit;font-size:.95rem;resize:vertical;min-height:80px}
+.q-text-answer:focus{outline:none;border-color:var(--primary-light);
+  box-shadow:0 0 0 3px rgba(59,130,246,.15)}
+.q-nav{display:flex;justify-content:space-between;align-items:center;
+  margin-top:1rem;gap:.5rem;flex-wrap:wrap}
+.q-nav-info{font-size:.85rem;color:var(--muted);font-weight:600}
+.q-feedback{background:#f0fdf4;border-left:4px solid var(--success);
+  padding:.9rem 1rem;border-radius:6px;margin-top:.75rem;font-size:.88rem}
+.q-feedback.wrong{background:#fef2f2;border-left-color:var(--error)}
+.q-feedback strong{display:block;margin-bottom:.35rem}
+.q-pembahasan{background:#f8fafc;padding:.9rem 1rem;border-radius:6px;
+  margin-top:.75rem;font-size:.88rem;line-height:1.65}
+.q-pembahasan strong{color:var(--primary)}
+.progress-bar{background:#e2e8f0;border-radius:999px;height:8px;
+  overflow:hidden;margin-top:.5rem}
+.progress-bar-fill{background:var(--primary-light);height:100%;
+  transition:width .3s}
+
+/* ========= FORUM ========= */
+.forum-item{background:#fff;border:1px solid var(--border);
+  border-radius:10px;padding:1rem;margin-bottom:.75rem}
+.forum-item h4{margin:0 0 .35rem;font-size:.95rem;color:var(--primary)}
+.forum-meta{font-size:.75rem;color:var(--muted);margin-bottom:.5rem}
+.forum-item p{margin:0;font-size:.88rem}
+.forum-jawaban{background:#f0f4fa;border-left:3px solid var(--primary-light);
+  padding:.6rem .85rem;border-radius:6px;margin-top:.65rem;font-size:.85rem}
+.forum-jawaban strong{color:var(--primary)}
+.forum-form{background:#fff;border:1px solid var(--border);border-radius:12px;padding:1.25rem;margin-bottom:1.5rem}
+.forum-form input, .forum-form select, .forum-form textarea {
+  width:100%; padding:.7rem; margin-bottom:.75rem; border:1.5px solid var(--border);
+  border-radius:8px; font-family:inherit; font-size:.95rem;
+}
+.forum-form textarea { min-height:100px; resize:vertical; }
+.forum-form input:focus, .forum-form select:focus, .forum-form textarea:focus {
+  outline:none; border-color:var(--primary-light);
+}
+
+/* ========= PROGRES ========= */
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
+  gap:1rem;margin:1rem 0}
+.stat-box{background:#fff;border:1px solid var(--border);border-radius:10px;
+  padding:1rem;text-align:center}
+.stat-box .val{font-size:1.6rem;font-weight:800;color:var(--primary)}
+.stat-box .lbl{font-size:.78rem;color:var(--muted);margin-top:.15rem}
+table { width:100%; border-collapse:collapse; font-size:.85rem; background:#fff; border-radius:10px; overflow:hidden;}
+th { background:#f1f5f9; padding:.6rem; text-align:left; }
+td { padding:.5rem; border-top:1px solid var(--border); }
+
+@media(max-width:760px){
+  .materi-layout{grid-template-columns:1fr}
+  .materi-menu{position:static;display:flex;overflow-x:auto;padding:.5rem;gap:.25rem;max-height:none}
+  .materi-menu button{flex-shrink:0;width:auto;margin-bottom:0}
+  .lab-content{grid-template-columns:1fr}
+  .welcome-banner{padding:1.25rem}
+  main.container{padding:1rem .75rem 2rem}
+}
+</style>
+</head>
+<body>
+
+<div id="loading" class="loading-overlay" style="display:none;">Memuat data...</div>
+
+<!-- ============ SCREEN 1: GERBANG MASUK ============ -->
+<section id="login-screen" aria-labelledby="login-title">
+  <div class="login-card" role="main">
+    <div class="brand">
+      <svg class="brand-logo" viewBox="0 0 48 48" aria-hidden="true">
+        <rect x="2" y="2" width="20" height="20" rx="3" fill="#3b82f6"/>
+        <polygon points="30,2 46,2 38,18" fill="#f59e0b"/>
+        <circle cx="12" cy="36" r="10" fill="#1e3a8a"/>
+        <polygon points="30,26 46,26 38,44" fill="#10b981"/>
+      </svg>
+      <span class="brand-name">GeoMatika</span>
+    </div>
+    <p class="brand-tagline">Jelajahi Bangun Datar — Media Pembelajaran Matematika SMP Kelas VII</p>
+    <h1 class="form-title" id="login-title">Masuk ke Sistem</h1>
+    <p class="form-subtitle">Masukkan identitas untuk memulai pembelajaran</p>
+    <form id="login-form" novalidate>
+      <div class="field" id="field-nama">
+        <label for="input-nama">Nama Lengkap <span class="req">*</span></label>
+        <input type="text" id="input-nama" placeholder="Contoh: Ahmad Raziqi"
+               autocomplete="name" maxlength="60" required>
+        <div class="error-msg" id="err-nama"></div>
+      </div>
+      <div class="field" id="field-kelas">
+        <label for="input-kelas">Kelas <span class="req">*</span></label>
+        <select id="input-kelas" required>
+          <option value="">— Pilih kelas —</option>
+          <option>VII-A</option><option>VII-B</option><option>VII-C</option>
+          <option>VII-D</option><option>VII-E</option><option>VII-F</option>
+        </select>
+        <div class="error-msg" id="err-kelas"></div>
+      </div>
+      <div class="field" id="field-absen">
+        <label for="input-absen">Nomor Absen <span class="req">*</span></label>
+        <input type="number" id="input-absen" min="1" max="60"
+               inputmode="numeric" placeholder="Contoh: 1" required>
+        <div class="error-msg" id="err-absen"></div>
+      </div>
+      <button type="submit" class="btn btn-primary">Mulai Belajar</button>
+    </form>
+    <p class="login-note">
+      ℹ️ <strong>Catatan:</strong> Versi ini berjalan sepenuhnya di browser Anda (tanpa server). Progres nilai akan tersimpan di perangkat ini.
+    </p>
+  </div>
+</section>
+
+<!-- ============ SCREEN 2: APLIKASI ============ -->
+<div id="app" class="hidden">
+  <header class="app-header">
+    <div class="app-brand">GeoMatika</div>
+    <div class="user-info">
+      <span><strong id="display-nama">—</strong> · <span id="display-kelas">—</span> · No. <span id="display-absen">—</span></span>
+      <button type="button" class="btn-logout" id="btn-logout">Keluar</button>
+    </div>
+  </header>
+
+  <nav class="app-nav" role="tablist">
+    <button data-tab="beranda" class="active" role="tab">🏠 Beranda</button>
+    <button data-tab="materi" role="tab">📐 Materi</button>
+    <button data-tab="lab" role="tab">🧪 Lab Geometri</button>
+    <button data-tab="latihan" role="tab">📝 Latihan HOTS</button>
+    <button data-tab="forum" role="tab">💬 Forum</button>
+    <button data-tab="progres" role="tab">📊 Progres Saya</button>
+  </nav>
+
+  <main class="container" id="main-content">
+    <section id="page-beranda">
+      <div class="welcome-banner">
+        <h1>Selamat datang, <span id="welcome-nama">Siswa</span>! 👋</h1>
+        <p>Kelas <span id="welcome-kelas">—</span> · Siap menjelajahi dunia bangun datar hari ini?</p>
+      </div>
+      <div class="grid">
+        <button class="card" data-goto="materi"><h3>📐 Materi</h3><p>Definisi dan rumus.</p></button>
+        <button class="card" data-goto="lab"><h3>🧪 Lab Geometri</h3><p>Eksplorasi visual interaktif.</p></button>
+        <button class="card" data-goto="latihan"><h3>📝 Latihan HOTS</h3><p>10 soal kontekstual.</p></button>
+        <button class="card" data-goto="forum"><h3>💬 Forum Diskusi</h3><p>Diskusi (Demo UI).</p></button>
+      </div>
+    </section>
+
+    <section id="page-materi" class="hidden">
+      <div class="materi-layout">
+        <nav class="materi-menu" id="materi-menu"></nav>
+        <div class="materi-content" id="materi-content"></div>
+      </div>
+    </section>
+
+    <section id="page-lab" class="hidden">
+      <h2 style="color:var(--primary);margin-top:0">Laboratorium Geometri</h2>
+      <div id="lab-container"></div>
+    </section>
+
+    <section id="page-latihan" class="hidden">
+      <div class="q-header" style="background:none;border:none;padding:0;margin-bottom:.75rem">
+        <h2 style="color:var(--primary);margin:0">Latihan Soal HOTS</h2>
+        <span class="q-nav-info" id="q-progress-text"></span>
+      </div>
+      <div class="progress-bar"><div class="progress-bar-fill" id="q-progress-bar"></div></div>
+      <div id="q-container" style="margin-top:1rem"></div>
+      <div class="q-nav">
+        <button class="btn btn-secondary" id="btn-prev" disabled>← Sebelumnya</button>
+        <button class="btn btn-primary" id="btn-next" style="width:auto">Berikutnya →</button>
+      </div>
+    </section>
+
+    <section id="page-forum" class="hidden">
+      <span class="demo-badge" style="background:#fef3c7;color:#92400e;padding:.2rem .6rem;border-radius:999px;font-weight:bold;font-size:0.8rem">⚠️ Demo UI (Tanpa Server)</span>
+      <h2 style="color:var(--primary);margin-top:1rem">Forum Diskusi Kelas</h2>
+      <p style="color:var(--muted);font-size:.9rem">Tampilan ini hanya simulasi. Untuk fitur forum interaktif yang nyata (bisa saling balas antar siswa), dibutuhkan server database.</p>
+      
+      <div class="forum-form">
+        <h3 style="margin-top:0;font-size:1rem">Buat Pertanyaan Baru</h3>
+        <input type="text" id="f-judul" placeholder="Judul Pertanyaan">
+        <select id="f-kategori">
+          <option value="Konsep Bangun Datar">Konsep Bangun Datar</option>
+          <option value="Keliling & Luas">Keliling & Luas</option>
+          <option value="Latihan Soal">Latihan Soal</option>
+        </select>
+        <textarea id="f-isi" placeholder="Tulis detail pertanyaanmu..."></textarea>
+        <button class="btn btn-primary" id="btn-kirim-forum" style="width:auto" onclick="alert('Versi statis ini belum terhubung ke database. Pertanyaan tidak akan terkirim.')">Kirim Pertanyaan</button>
+      </div>
+
+      <div class="forum-item">
+        <h4>[Data Contoh] Bagaimana cara membedakan belah ketupat dan layang-layang?</h4>
+        <div class="forum-meta">Oleh: Siswa A · Kategori: Konsep Bangun Datar</div>
+        <p>Saya masih bingung membedakan keduanya. Apa perbedaan utamanya?</p>
+        <div class="forum-jawaban"><strong>[Guru]</strong> Perbedaan utama ada pada simetri diagonalnya. Belah ketupat keempat sisinya sama panjang, sedangkan layang-layang hanya dua pasang sisi berdekatan yang sama panjang.</div>
+      </div>
+    </section>
+
+    <section id="page-progres" class="hidden">
+      <h2 style="color:var(--primary);margin-top:0">Progres Belajar</h2>
+      <p style="color:var(--muted);font-size:.88rem">Data ini tersimpan di browser perangkat ini saja (Local Storage).</p>
+      <div id="progres-content"></div>
+    </section>
+
+  </main>
+</div>
+
+<script>
+(function(){
+'use strict';
+
+// ============================================================
+// DATA MATERI, SOAL, DAN LAB (Sama seperti sebelumnya)
+// ============================================================
+const MATERI = {
+  persegi: { nama: 'Persegi', definisi: 'Persegi adalah bangun datar segi empat yang keempat sisinya sama panjang dan keempat sudutnya siku-siku (90°).', sifat: ['Keempat sisi sama panjang (s).','Keempat sudut siku-siku (90°).','Kedua diagonal sama panjang, saling tegak lurus, dan saling membagi dua sama panjang.','Memiliki 4 simetri lipat dan simetri putar tingkat 4.'], rumus: ['Keliling: K = 4 × s', 'Luas: L = s × s = s²'], penjelasan: 'Keliling = s + s + s + s = 4s. Luas = banyaknya petak satuan 1×1 yang menutupi persegi; jika sisi s, maka ada s baris dan s kolom petak = s × s = s².', contoh: 'Sisi 6 cm. K = 4 × 6 = 24 cm. L = 6² = 36 cm².', miskonsepsi: 'Sering dianggap semua segi empat adalah persegi. Persegi harus memiliki 4 sisi sama panjang DAN 4 sudut siku-siku.', aplikasi: 'Ubin, papan catur, jendela.' },
+  persegipanjang: { nama: 'Persegi Panjang', definisi: 'Segi empat dengan dua pasang sisi sejajar yang sama panjang dan keempat sudutnya siku-siku.', sifat: ['Sisi berhadapan sejajar dan sama panjang.','Keempat sudut siku-siku (90°).','Diagonal sama panjang dan saling membagi dua.','Memiliki 2 simetri lipat dan simetri putar tingkat 2.'], rumus: ['Keliling: K = 2 × (p + l)', 'Luas: L = p × l'], penjelasan: 'Keliling = p + l + p + l = 2(p+l). Luas = banyaknya petak satuan: ada p petak horizontal dan l petak vertikal = p × l.', contoh: 'p = 10 cm, l = 4 cm. K = 2(10+4) = 28 cm. L = 10 × 4 = 40 cm².', miskonsepsi: 'Menganggap persegi panjang harus selalu "panjang". Persegi sebenarnya adalah persegi panjang istimewa.', aplikasi: 'Pintu, lapangan, layar TV.' },
+  segitiga: { nama: 'Segitiga', definisi: 'Bangun datar dengan 3 sisi dan 3 sudut. Jumlah ketiga sudutnya selalu 180°.', sifat: ['Klasifikasi berdasarkan sisi: sama sisi, sama kaki, sembarang.','Klasifikasi berdasarkan sudut: lancip, siku-siku, tumpul.','Jumlah sudut dalam = 180°.','Berlaku ketaksamaan segitiga: a+b > c.'], rumus: ['Keliling: K = a + b + c', 'Luas: L = ½ × alas × tinggi'], penjelasan: 'Keliling = jumlah ketiga sisi. Luas = setengah dari luas persegi panjang yang mengapitnya. Jika diduplikasi dan diputar, dua segitiga membentuk persegi panjang (alas × tinggi).', contoh: 'Alas 8 cm, tinggi 5 cm. L = ½ × 8 × 5 = 20 cm².', miskonsepsi: 'Mengira tinggi segitiga = sisi miring. Tinggi harus tegak lurus terhadap alas.', aplikasi: 'Rangka atap, rambu lalu lintas.' },
+  jajargenjang: { nama: 'Jajar Genjang', definisi: 'Segi empat dengan dua pasang sisi sejajar dan sama panjang, tetapi sudutnya tidak siku-siku.', sifat: ['Sisi berhadapan sejajar dan sama panjang.','Sudut berhadapan sama besar.','Sudut berdekatan berjumlah 180°.','Diagonal saling membagi dua.'], rumus: ['Keliling: K = 2 × (a + b)', 'Luas: L = alas × tinggi'], penjelasan: 'Jika dipotong pada salah satu ujung dan disusun ulang, jajar genjang membentuk persegi panjang dengan panjang = alas dan lebar = tinggi. Jadi L = alas × tinggi (bukan sisi miring).', contoh: 'Alas 10 cm, tinggi 4 cm. L = 10 × 4 = 40 cm².', miskonsepsi: 'Sering menggunakan sisi miring sebagai tinggi. Tinggi harus tegak lurus alas.', aplikasi: 'Motif lantai, atap miring.' },
+  belahketupat: { nama: 'Belah Ketupat', definisi: 'Segi empat yang keempat sisinya sama panjang, namun sudutnya tidak siku-siku.', sifat: ['Keempat sisi sama panjang.','Sudut berhadapan sama besar.','Diagonal saling tegak lurus dan membagi dua sama panjang.','Memiliki 2 simetri lipat.'], rumus: ['Keliling: K = 4 × s', 'Luas: L = ½ × d₁ × d₂'], penjelasan: 'Luas didapat dari membelahnya menjadi 4 segitiga siku-siku. Jika digabungkan, luasnya setengah dari persegi panjang yang dibentuk kedua diagonalnya.', contoh: 'Diagonal 10 cm dan 6 cm. L = ½ × 10 × 6 = 30 cm².', miskonsepsi: 'Mengira luas = sisi × sisi. Belah ketupat dihitung berdasarkan panjang diagonalnya.', aplikasi: 'Ketupat, motif batik.' },
+  layanglayang: { nama: 'Layang-layang', definisi: 'Segi empat dengan dua pasang sisi berdekatan yang sama panjang dan sepasang sudut berhadapan yang sama besar.', sifat: ['Dua pasang sisi berdekatan sama panjang.','Sepasang sudut berhadapan sama besar.','Diagonal saling tegak lurus.','Memiliki 1 simetri lipat.'], rumus: ['Keliling: K = 2 × (a + b)', 'Luas: L = ½ × d₁ × d₂'], penjelasan: 'Dapat dibelah menjadi dua segitiga kongruen sepanjang diagonal horizontalnya. Total luasnya setengah dari hasil kali kedua diagonalnya.', contoh: 'Diagonal 12 cm dan 8 cm. L = ½ × 12 × 8 = 48 cm².', miskonsepsi: 'Menganggap semua sisi layang-layang sama panjang (itu belah ketupat).', aplikasi: 'Mainan layang-layang, ventilasi.' },
+  trapesium: { nama: 'Trapesium', definisi: 'Segi empat yang memiliki tepat sepasang sisi berhadapan yang sejajar.', sifat: ['Memiliki sepasang sisi sejajar.','Trapesium sama kaki memiliki kaki sama panjang.','Trapesium siku-siku memiliki dua sudut siku-siku.','Sudut di antara sisi sejajar berjumlah 180°.'], rumus: ['Keliling: K = a + b + c + d', 'Luas: L = ½ × (a + b) × t'], penjelasan: 'Jika dua trapesium identik disalin dan diputar, lalu ditempelkan, akan membentuk jajar genjang dengan alas (a+b). Luas satu trapesium adalah setengahnya.', contoh: 'Sisi sejajar 12 cm dan 8 cm, tinggi 5 cm. L = ½ × (12+8) × 5 = 50 cm².', miskonsepsi: 'Menggunakan sisi miring sebagai tinggi. Tinggi harus tegak lurus sisi sejajar.', aplikasi: 'Atap rumah, tas tangan.' },
+  segibanyak: { nama: 'Segi Banyak', definisi: 'Bangun datar tertutup yang seluruh sisinya dibatasi oleh garis lurus.', sifat: ['Jumlah sudut dalam segi-n = (n - 2) × 180°.','Memiliki jari-jari (r) dan apotema (a).','Segi banyak beraturan memiliki sisi dan sudut sama besar.'], rumus: ['Keliling: K = n × s', 'Luas: L = ½ × K × a (a = apotema)'], penjelasan: 'Dapat dibagi menjadi n buah segitiga sama kaki dari titik pusat. Luas satu segitiga = ½ × s × a. Jadi total luas = ½ × (n × s) × a = ½ × K × a.', contoh: 'Segi enam sisi 6 cm, apotema 5,2 cm. L = ½ × 36 × 5,2 = 93,6 cm².', miskonsepsi: 'Menganggap semua segi banyak beraturan.', aplikasi: 'Rambu lalu lintas, sarang lebah.' },
+  lingkaran: { nama: 'Lingkaran', definisi: 'Himpunan titik-titik yang berjarak sama terhadap satu titik pusat. Jarak itu disebut jari-jari (r).', sifat: ['Jarak setiap titik ke pusat selalu r.','Diameter d = 2r.','Rasio keliling terhadap diameter = π.','Memiliki simetri lipat tak hingga.'], rumus: ['Keliling: K = 2πr = πd', 'Luas: L = πr²'], penjelasan: 'Keliling adalah panjang busur. Luas: jika dipotong menjadi irisan kecil dan disusun, membentuk persegi panjang dengan panjang πr dan lebar r.', contoh: 'r = 7 cm. K = 44 cm. L = 154 cm².', miskonsepsi: 'Tertukar antara diameter dan jari-jari pada rumus.', aplikasi: 'Roda, jam dinding, kolam.' }
+};
+
+const SOAL = [
+  {id:1, level:'C4', tipe:'pg', indikator:'Membandingkan keliling dan luas', konteks:'Dua lapangan: A (13×6) dan B (12×6,5).', pertanyaan:'Mana yang butuh pagar lebih panjang dan bagaimana luasnya?', pilihan:['A. A butuh pagar lebih panjang; luas A = luas B','B. B butuh pagar lebih panjang; luas A > luas B','C. A butuh pagar lebih panjang; luas A > luas B','D. Keduanya sama keliling dan luasnya'], jawaban:'A', pembahasan:'Keliling A = 38 m, B = 37 m. Luas A = 78 m², B = 78 m². Luas sama!', feedback:'Keliling besar tidak berarti luas besar.', feedbackSalah:'Hitung kedua luas secara eksplisit.'},
+  {id:2, level:'C4', tipe:'isian', indikator:'Kebutuhan ubin', konteks:'Ruang 9×7 m, ubin 50×50 cm, 1 dus isi 4.', pertanyaan:'Berapa banyak dus ubin?', jawaban:63, satuan:'dus', pembahasan:'Luas = 63 m² = 630.000 cm². Ubin = 2.500 cm². Butuh 252 ubin = 63 dus.', feedback:'Ubah satuan ke cm² dulu.', feedbackSalah:'1 m² = 10.000 cm².'},
+  {id:3, level:'C4', tipe:'pg', indikator:'Miskonsepsi luas jajar genjang', konteks:'Siswa hitung L = 10 × 8 = 80. Tinggi asli 6 cm.', pertanyaan:'Manakah yang benar?', pilihan:['A. Benar','B. Salah, harusnya 8 × 6 = 48','C. Salah, harusnya ½ × 8 × 6 = 24','D. Benar, sisi miring = tinggi'], jawaban:'B', pembahasan:'Luas = alas × tinggi. 8 × 6 = 48 cm².', feedback:'Tinggi tegak lurus alas.', feedbackSalah:'Sisi miring bukan tinggi.'},
+  {id:4, level:'C4', tipe:'isian', indikator:'Luas gabungan', konteks:'Persegi panjang 10×6 ditambah segitiga (a=10, t=4). Biaya Rp 25.000/m².', pertanyaan:'Total biaya?', jawaban:2000000, satuan:'rupiah', pembahasan:'L = 60 + 20 = 80 m². Biaya = 80 × 25.000 = 2.000.000.', feedback:'Uraikan bangun.', feedbackSalah:'Lupa ½ segitiga?'},
+  {id:5, level:'C4', tipe:'isian', indikator:'Luas cincin', konteks:'Kolam lingkaran d=14 m, jalan lebar 3,5 m. π=22/7.', pertanyaan:'Luas jalan?', jawaban:192.5, satuan:'m²', pembahasan:'r1=7, r2=10,5. L = π(r2²-r1²) = 192,5 m².', feedback:'L luar - L dalam.', feedbackSalah:'r luar = 7 + 3,5.'},
+  {id:6, level:'C5', tipe:'pg', indikator:'Evaluasi keliling sama', konteks:'K=36: Andi (10×8), Budi (12×6), Citra (15×3).', pertanyaan:'Kesimpulan benar?', pilihan:['A. Luas terbesar Andi (80)','B. Luas terbesar Citra','C. Hanya Andi yang K=36','D. Luas sama'], jawaban:'A', pembahasan:'K semua 36. L Andi 80, Budi 72, Citra 45.', feedback:'Bentuk seimbang = luas besar.', feedbackSalah:'Cek K masing-masing.'},
+  {id:7, level:'C4', tipe:'isian', indikator:'Luas trapesium', konteks:'Sisi sejajar 12 dan 8, tinggi 6. Ditanami bunga 20 m².', pertanyaan:'Sisa rumput?', jawaban:40, satuan:'m²', pembahasan:'L trapesium = ½(20)(6) = 60. Sisa = 40.', feedback:'Rumus ½(a+b)t.', feedbackSalah:'Lupa ½?'},
+  {id:8, level:'C5', tipe:'pg', indikator:'Optimasi keliling', konteks:'Luas 48: P (8×6), Q (12×4), R (16×3).', pertanyaan:'Paling hemat pagar?', pilihan:['A. P (28 m)','B. Q (32 m)','C. R (38 m)','D. Sama'], jawaban:'A', pembahasan:'K P=28, Q=32, R=38. Paling seimbang = paling hemat.', feedback:'Bentuk mendekati persegi.', feedbackSalah:'Hitung keliling.'},
+  {id:9, level:'C6', tipe:'uraian', indikator:'Desain taman', konteks:'Syarat: Luas ≥36, Keliling ≤26, bulat.', pertanyaan:'Usulkan 2 rancangan.', rubrik:['2 rancangan valid: 2 poin','Luas ≥36: 1 poin','Keliling ≤26: 1 poin','Alasan: 1 poin'], contohJawaban:'6×6 (L=36, K=24) dan 9×4 (L=36, K=26).', pembahasan:'Contoh: 6×6, 9×4, 6×7.', feedback:'Cek kedua syarat.'},
+  {id:10, level:'C6', tipe:'uraian', indikator:'Desain denah', konteks:'100 ubin 40×40 cm.', pertanyaan:'Rancang 2 denah.', rubrik:['2 denah valid: 2 poin','Perhitungan tepat 100: 2 poin','Penjelasan: 1 poin'], contohJawaban:'4×4 m (10×10 ubin) dan 8×2 m (20×5 ubin).', pembahasan:'Luas total 16 m². Kelipatan 0,4 m.', feedback:'Ubin tak boleh dipotong.'}
+];
+
+const LAB_SCENES = {
+  persegi: { judul: 'Persegi', petunjuk: 'Geser slider.', render: function(s){ const v = s.sisi; const px = Math.min(180, v*30); const off=(200-px)/2+20; return {svg:`<svg viewBox="0 0 220 220"><rect x="${off}" y="${off}" width="${px}" height="${px}" fill="#dbeafe" stroke="#1e3a8a" stroke-width="2"/><text x="110" y="110" text-anchor="middle" font-size="14" fill="#1e3a8a">s = ${v}</text></svg>`, hasil:{k:4*v, l:v*v}}; }, kontrol:[{key:'sisi',label:'Sisi',min:1,max:15,step:1,val:5}] },
+  persegipanjang: { judul: 'Persegi Panjang', petunjuk: 'Geser slider.', render: function(s){ const p=s.panjang, l=s.lebar; const sc=Math.min(200/p,150/l); return {svg:`<svg viewBox="0 0 300 200"><rect x="30" y="30" width="${p*sc}" height="${l*sc}" fill="#dbeafe" stroke="#1e3a8a" stroke-width="2"/><text x="${30+p*sc/2}" y="20" text-anchor="middle" font-size="12">p=${p}</text><text x="20" y="${30+l*sc/2}" text-anchor="middle" font-size="12">l=${l}</text></svg>`, hasil:{k:2*(p+l), l:p*l}}; }, kontrol:[{key:'panjang',label:'Panjang',min:1,max:15,step:1,val:8},{key:'lebar',label:'Lebar',min:1,max:10,step:1,val:4}] },
+  segitiga: { judul: 'Segitiga', petunjuk: 'Garis merah adalah tinggi.', render: function(s){ const a=s.alas, t=s.tinggi; const sc=Math.min(180/a,120/t); const aw=a*sc, tw=t*sc; return {svg:`<svg viewBox="0 0 240 180"><polygon points="30,150 ${30+aw},150 ${30+aw},${150-tw}" fill="#bfdbfe" opacity="0.4" stroke="#94a3b8" stroke-dasharray="3"/><polygon points="30,150 ${30+aw},150 ${30+aw/2},${150-tw}" fill="#dbeafe" stroke="#1e3a8a" stroke-width="2"/><line x1="${30+aw/2}" y1="${150-tw}" x2="${30+aw/2}" y2="150" stroke="red" stroke-dasharray="4"/><text x="${30+aw/2}" y="165" text-anchor="middle" font-size="12">a=${a}</text></svg>`, hasil:{k:null, l:0.5*a*t}}; }, kontrol:[{key:'alas',label:'Alas',min:2,max:15,step:1,val:8},{key:'tinggi',label:'Tinggi',min:1,max:10,step:1,val:5}] },
+  jajargenjang: { judul: 'Jajar Genjang', petunjuk: 'Perhatikan tinggi.', render: function(s){ const a=s.alas, t=s.tinggi; const sc=Math.min(150/a,120/t); return {svg:`<svg viewBox="0 0 240 180"><polygon points="30,150 ${30+a*sc},150 ${30+a*sc+20},${150-t*sc} 50,${150-t*sc}" fill="#dbeafe" stroke="#1e3a8a" stroke-width="2"/><line x1="50" y1="${150-t*sc}" x2="50" y2="150" stroke="red" stroke-dasharray="4"/></svg>`, hasil:{k:null, l:a*t}}; }, kontrol:[{key:'alas',label:'Alas',min:2,max:15,step:1,val:8},{key:'tinggi',label:'Tinggi',min:1,max:10,step:1,val:5}] },
+  belahketupat: { judul: 'Belah Ketupat', petunjuk: 'Diagonal tegak lurus.', render: function(s){ const d1=s.d1, d2=s.d2; const sc=Math.min(120/d1,120/d2); const w=d1*sc, h=d2*sc; return {svg:`<svg viewBox="0 0 240 200"><polygon points="${120},${100-h/2} ${120+w/2},${100} ${120},${100+h/2} ${120-w/2},${100}" fill="#dbeafe" stroke="#1e3a8a" stroke-width="2"/><line x1="${120-w/2}" y1="100" x2="${120+w/2}" y2="100" stroke="orange" stroke-dasharray="4"/><line x1="120" y1="${100-h/2}" x2="120" y2="${100+h/2}" stroke="orange" stroke-dasharray="4"/></svg>`, hasil:{k:null, l:0.5*d1*d2}}; }, kontrol:[{key:'d1',label:'Diagonal 1',min:2,max:16,step:1,val:12},{key:'d2',label:'Diagonal 2',min:2,max:16,step:1,val:8}] },
+  layanglayang: { judul: 'Layang-layang', petunjuk: 'Dua segitiga berbagi alas.', render: function(s){ const d1=s.d1, d2=s.d2; const sc=Math.min(120/d1,120/d2); const w=d1*sc, h=d2*sc; return {svg:`<svg viewBox="0 0 240 200"><polygon points="${120},${100-h*0.7} ${120+w/2},${100+h*0.3} ${120},${100+h*0.6} ${120-w/2},${100+h*0.3}" fill="#dbeafe" stroke="#1e3a8a" stroke-width="2"/><line x1="${120-w/2}" y1="${100+h*0.3}" x2="${120+w/2}" y2="${100+h*0.3}" stroke="orange" stroke-dasharray="4"/></svg>`, hasil:{k:null, l:0.5*d1*d2}}; }, kontrol:[{key:'d1',label:'Diagonal 1',min:4,max:16,step:1,val:12},{key:'d2',label:'Diagonal 2',min:4,max:16,step:1,val:10}] },
+  trapesium: { judul: 'Trapesium', petunjuk: 'Sisi sejajar a dan b.', render: function(s){ const a=s.a, b=s.b, t=s.t; const sc=Math.min(150/b,120/t); const aw=a*sc, bw=b*sc, tw=t*sc; return {svg:`<svg viewBox="0 0 240 180"><polygon points="30,150 ${30+bw},150 ${30+bw-(bw-aw)/2},${150-tw} ${30+(bw-aw)/2},${150-tw}" fill="#dbeafe" stroke="#1e3a8a" stroke-width="2"/><line x1="${30+(bw-aw)/2}" y1="${150-tw}" x2="${30+(bw-aw)/2}" y2="150" stroke="red" stroke-dasharray="4"/></svg>`, hasil:{k:null, l:0.5*(a+b)*t}}; }, kontrol:[{key:'a',label:'Atas',min:2,max:10,step:1,val:6},{key:'b',label:'Bawah',min:4,max:16,step:1,val:12},{key:'t',label:'Tinggi',min:1,max:10,step:1,val:5}] },
+  segibanyak: { judul: 'Segi Banyak', petunjuk: 'Bangun tersusun dari n segitiga.', render: function(s){ const n=s.n; const r=80; const cx=120, cy=100; let pts=''; for(let i=0;i<n;i++){ const ang=(i*2*Math.PI/n)-Math.PI/2; pts += `${cx+r*Math.cos(ang)},${cy+r*Math.sin(ang)} `; } const side = 2*r*Math.sin(Math.PI/n); const ap = r*Math.cos(Math.PI/n); return {svg:`<svg viewBox="0 0 240 200"><polygon points="${pts}" fill="#dbeafe" stroke="#1e3a8a" stroke-width="2"/><circle cx="${cx}" cy="${cy}" r="3" fill="black"/></svg>`, hasil:{k:n*side, l:0.5*(n*side)*ap}}; }, kontrol:[{key:'n',label:'Jumlah Sisi',min:3,max:12,step:1,val:6}] },
+  lingkaran: { judul: 'Lingkaran', petunjuk: 'π ≈ 3,14.', render: function(s){ const r=s.r; const px=r*15; return {svg:`<svg viewBox="0 0 240 200"><circle cx="120" cy="100" r="${px}" fill="#dbeafe" stroke="#1e3a8a" stroke-width="2"/><line x1="120" y1="100" x2="${120+px}" y2="100" stroke="orange" stroke-dasharray="4"/></svg>`, hasil:{k:2*Math.PI*r, l:Math.PI*r*r}}; }, kontrol:[{key:'r',label:'Jari-jari',min:1,max:9,step:0.5,val:5}] }
+};
+
+// ============================================================
+// STATE & LOCAL STORAGE CONFIG
+// ============================================================
+let currentUser = null;
+const STORAGE_KEY_ID = 'geomatika:identity';
+const STORAGE_KEY_PROGRESS = 'geomatika:progress';
+
+const state = { activeTab:'beranda', activeMateri:'persegi', latihanIndex:0, latihanJawaban:{}, latihanChecked:{}, latihanSelesai:false, labState:{} };
+Object.keys(LAB_SCENES).forEach(k => { state.labState[k] = {}; LAB_SCENES[k].kontrol.forEach(c => { state.labState[k][c.key] = c.val; }); });
+
+function showLoading(show) { document.getElementById('loading').style.display = show ? 'flex' : 'none'; }
+
+function saveIdentity(d){ try{localStorage.setItem(STORAGE_KEY_ID, JSON.stringify(d));}catch(e){} }
+function loadIdentity(){ try{const r=localStorage.getItem(STORAGE_KEY_ID); return r?JSON.parse(r):null;}catch(e){return null;} }
+function clearIdentity(){ try{localStorage.removeItem(STORAGE_KEY_ID);}catch(e){} }
+function loadProgress(){ try{return JSON.parse(localStorage.getItem(STORAGE_KEY_PROGRESS) || '{}');}catch(e){return {};} }
+function saveProgress(p){ try{localStorage.setItem(STORAGE_KEY_PROGRESS, JSON.stringify(p));}catch(e){} }
+
+// ============================================================
+// LOGIN LOGIC (LOCAL STORAGE)
+// ============================================================
+document.getElementById('login-form').addEventListener('submit', function(e){
+  e.preventDefault();
+  const nama = document.getElementById('input-nama').value.trim();
+  const kelas = document.getElementById('input-kelas').value;
+  const absen = document.getElementById('input-absen').value;
+  
+  if (!nama || !kelas || !absen) { alert('Harap isi semua kolom!'); return; }
+  
+  showLoading(true);
+  const identity = {
+    nama: nama.replace(/\s+/g,' '),
+    kelas: kelas,
+    absen: Number(absen),
+    loginAt: new Date().toISOString()
+  };
+  
+  saveIdentity(identity);
+  currentUser = identity;
+  setTimeout(() => { showApp(); showLoading(false); }, 500); // Delay sedikit untuk efek loading
+});
+
+function cekSesiLogin() {
+  const saved = loadIdentity();
+  if (saved && saved.nama) {
+    currentUser = saved;
+    showApp();
+  }
+}
+
+document.getElementById('btn-logout').addEventListener('click', function(){
+  if (!confirm('Keluar dari sesi ini? Kamu perlu mengisi identitas lagi untuk masuk.')) return;
+  clearIdentity();
+  currentUser = null;
+  document.getElementById('app').classList.add('hidden');
+  document.getElementById('login-screen').classList.remove('hidden');
+  document.getElementById('login-form').reset();
+});
+
+function showApp() {
+  document.getElementById('login-screen').classList.add('hidden');
+  document.getElementById('app').classList.remove('hidden');
+  document.getElementById('display-nama').textContent = currentUser.nama;
+  document.getElementById('display-kelas').textContent = currentUser.kelas;
+  document.getElementById('display-absen').textContent = currentUser.absen;
+  document.getElementById('welcome-nama').textContent = currentUser.nama.split(' ')[0];
+  document.getElementById('welcome-kelas').textContent = currentUser.kelas;
+  
+  renderMateriMenu(); renderMateri(); renderLab(); renderLatihan(); switchTab('beranda');
+}
+
+function switchTab(tab){
+  state.activeTab = tab;
+  document.querySelectorAll('.app-nav button').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+  ['beranda','materi','lab','latihan','forum','progres'].forEach(t => {
+    document.getElementById('page-'+t).classList.toggle('hidden', t !== tab);
+  });
+  if (tab === 'progres') renderProgres();
+}
+document.querySelectorAll('.app-nav button').forEach(b => b.addEventListener('click', () => switchTab(b.dataset.tab)));
+document.querySelectorAll('[data-goto]').forEach(b => b.addEventListener('click', () => switchTab(b.dataset.goto)));
+
+// ============================================================
+// RENDER MATERI & LAB
+// ============================================================
+function renderMateriMenu() {
+  const menu = document.getElementById('materi-menu');
+  menu.innerHTML = Object.keys(MATERI).map(k => `<button data-materi="${k}" class="${k===state.activeMateri?'active':''}">${MATERI[k].nama}</button>`).join('');
+  menu.querySelectorAll('button').forEach(b => b.addEventListener('click', () => { state.activeMateri = b.dataset.materi; renderMateri(); renderMateriMenu(); }));
+}
+function renderMateri() {
+  const m = MATERI[state.activeMateri];
+  document.getElementById('materi-content').innerHTML = `
+    <h2>${m.nama}</h2><h3>Definisi</h3><p>${m.definisi}</p>
+    <h3>Unsur dan Sifat</h3><ul>${m.sifat.map(s=>`<li>${s}</li>`).join('')}</ul>
+    <h3>Rumus</h3>${m.rumus.map(r=>`<div class="rumus">${r}</div>`).join('')}
+    <h3>Mengapa Rumus Ini Berlaku?</h3><p>${m.penjelasan}</p>
+    <h3>Contoh Soal</h3><p>${m.contoh}</p>
+    <div class="miskonsepsi"><strong>⚠️ Miskonsepsi:</strong> ${m.miskonsepsi}</div>
+    <h3>Penerapan</h3><p>${m.aplikasi}</p>`;
+}
+function renderLab(){
+  const container = document.getElementById('lab-container');
+  container.innerHTML = Object.keys(LAB_SCENES).map(key => {
+    const scene = LAB_SCENES[key];
+    return `<div class="lab-card"><h3>${scene.judul}</h3><p style="font-size:.85rem;color:var(--muted);margin-top:-.5rem">${scene.petunjuk}</p>
+      <div class="lab-content"><div class="lab-svg-wrap" id="svg-${key}"></div>
+      <div class="lab-controls">${scene.kontrol.map(c => `<label>${c.label} <output id="out-${key}-${c.key}">${state.labState[key][c.key]}</output></label><input type="range" min="${c.min}" max="${c.max}" step="${c.step}" value="${state.labState[key][c.key]}" data-lab="${key}" data-key="${c.key}">`).join('')}
+      <div class="lab-results" id="res-${key}"></div></div></div></div>`;
+  }).join('');
+
+  container.querySelectorAll('input[type=range]').forEach(inp => {
+    inp.addEventListener('input', function(){
+      const k = this.dataset.lab; const kk = this.dataset.key;
+      state.labState[k][kk] = Number(this.value);
+      document.getElementById(`out-${k}-${kk}`).textContent = this.value;
+      updateLabScene(k);
+    });
+  });
+  Object.keys(LAB_SCENES).forEach(updateLabScene);
+}
+function updateLabScene(key){
+  const scene = LAB_SCENES[key]; const st = state.labState[key]; const out = scene.render(st);
+  document.getElementById(`svg-${key}`).innerHTML = out.svg;
+  let html = '';
+  if (out.hasil.k !== null) html += `<div>Keliling = ${out.hasil.k.toFixed(2)} cm</div>`;
+  html += `<div>Luas = ${out.hasil.l.toFixed(2)} cm²</div>`;
+  document.getElementById(`res-${key}`).innerHTML = html;
+}
+
+// ============================================================
+// LATIHAN & SIMPAN PROGRES (LOCAL STORAGE)
+// ============================================================
+function renderLatihan(){
+  if (state.latihanSelesai) return renderHasilLatihan();
+  const q = SOAL[state.latihanIndex];
+  document.getElementById('q-progress-text').textContent = `Soal ${state.latihanIndex+1} dari ${SOAL.length}`;
+  document.getElementById('q-progress-bar').style.width = `${((state.latihanIndex+1)/SOAL.length)*100}%`;
+  const jawabanUser = state.latihanJawaban[q.id];
+  const checked = state.latihanChecked[q.id];
+
+  let pilihanHTML = '';
+  if (q.tipe === 'pg'){
+    pilihanHTML = `<div class="q-options">${q.pilihan.map(p => {
+      const letter = p.charAt(0);
+      const isSel = jawabanUser === letter;
+      const cls = checked ? (letter === q.jawaban ? 'correct' : (isSel ? 'incorrect' : '')) : (isSel ? 'selected' : '');
+      return `<label class="${cls}"><input type="radio" name="q${q.id}" value="${letter}" ${isSel?'checked':''} ${checked?'disabled':''}> ${p}</label>`;
+    }).join('')}</div>`;
+  } else if (q.tipe === 'isian'){
+    pilihanHTML = `<input type="text" class="q-text-answer" id="ans-${q.id}" value="${jawabanUser || ''}" placeholder="Tulis angka..." ${checked?'disabled':''}>`;
+  } else {
+    pilihanHTML = `<textarea class="q-text-answer" id="ans-${q.id}" placeholder="Tulis jawabanmu..." ${checked?'disabled':''}>${jawabanUser || ''}</textarea>`;
+  }
+
+  let feedbackHTML = '';
+  if (checked){
+    if (q.tipe === 'uraian'){
+      feedbackHTML = `<div class="q-feedback"><strong>📝 Soal Uraian</strong> Dinilai dengan rubrik.<div class="q-pembahasan"><strong>Contoh jawaban:</strong><br>${q.contohJawaban.replace(/\n/g,'<br>')}<br><br><strong>Rubrik:</strong><ul>${q.rubrik.map(r=>`<li>${r}</li>`).join('')}</ul></div></div>`;
+    } else {
+      const benar = isJawabanBenar(q, jawabanUser);
+      feedbackHTML = `<div class="q-feedback ${benar?'':'wrong'}"><strong>${benar?'✅ Benar':'❌ Belum Tepat'}</strong>${benar?'':q.feedbackSalah||''}</div>
+        <div class="q-pembahasan"><strong>Pembahasan:</strong><br>${q.pembahasan.replace(/\n/g,'<br>')}</div>`;
+    }
+  }
+
+  document.getElementById('q-container').innerHTML = `<div class="q-card"><div class="q-header"><div><span class="q-indikator">${q.indikator}</span> <span class="q-level">${q.level}</span></div></div><div class="q-konteks">${q.konteks.replace(/\n/g,'<br>')}</div><div class="q-pertanyaan">${q.pertanyaan}</div>${pilihanHTML}${checked?'':`<button class="btn btn-primary" id="btn-check" style="width:auto;margin-top:1rem">Periksa Jawaban</button>`}${feedbackHTML}</div>`;
+
+  document.getElementById('btn-prev').disabled = state.latihanIndex === 0;
+  document.getElementById('btn-next').textContent = (state.latihanIndex === SOAL.length - 1) ? 'Selesai & Simpan Nilai →' : 'Berikutnya →';
+
+  if (!checked){
+    if (q.tipe === 'pg') document.querySelectorAll(`input[name="q${q.id}"]`).forEach(inp => inp.addEventListener('change', function(){ state.latihanJawaban[q.id] = this.value; }));
+    else document.getElementById(`ans-${q.id}`).addEventListener('input', function(){ state.latihanJawaban[q.id] = this.value; });
+    
+    document.getElementById('btn-check').addEventListener('click', function(){
+      if (!state.latihanJawaban[q.id]) { alert('Isi jawaban dulu!'); return; }
+      state.latihanChecked[q.id] = true; renderLatihan();
+    });
+  }
+}
+
+function isJawabanBenar(q, user){
+  if (q.tipe === 'pg') return user === q.jawaban;
+  if (q.tipe === 'isian') {
+    const clean = (s) => String(s).replace(/\./g,'').replace(/,/g,'.').trim();
+    return Math.abs(Number(clean(user)) - q.jawaban) < 0.01;
+  }
+  return null;
+}
+
+document.getElementById('btn-prev').addEventListener('click', function(){ if (state.latihanIndex > 0){ state.latihanIndex--; renderLatihan(); } });
+document.getElementById('btn-next').addEventListener('click', function(){
+  const q = SOAL[state.latihanIndex];
+  if (!state.latihanChecked[q.id] && !confirm('Belum diperiksa. Lanjut?')) return;
+  if (state.latihanIndex < SOAL.length - 1) { state.latihanIndex++; renderLatihan(); }
+  else { state.latihanSelesai = true; hitungDanSimpanNilai(); renderLatihan(); }
+});
+
+function hitungDanSimpanNilai() {
+  let benar = 0, salah = 0, dinilai = 0;
+  SOAL.forEach(q => {
+    if (q.tipe !== 'uraian') {
+      dinilai++;
+      if (isJawabanBenar(q, state.latihanJawaban[q.id])) benar++; else salah++;
+    }
+  });
+  const skor = Math.round((benar / dinilai) * 100);
+  
+  const progress = loadProgress();
+  const lastLatihan = { tanggal: new Date().toISOString(), benar, salah, dinilai, skor };
+  progress.lastLatihan = lastLatihan;
+  progress.riwayat = progress.riwayat || [];
+  progress.riwayat.push(lastLatihan);
+  progress.riwayat = progress.riwayat.slice(-10);
+  saveProgress(progress);
+
+  document.getElementById('q-container').innerHTML = `
+    <div class="q-card" style="text-align:center">
+      <h2 style="color:var(--primary)">Latihan Selesai!</h2>
+      <div class="stat-grid" style="justify-content:center">
+        <div class="stat-box"><div class="val">${benar}/${dinilai}</div><div class="lbl">Benar (Objektif)</div></div>
+        <div class="stat-box"><div class="val">${skor}%</div><div class="lbl">Skor</div></div>
+      </div>
+      <p style="color:var(--success);font-weight:bold;margin-bottom:1.5rem">✅ Nilai berhasil disimpan di browser ini.</p>
+      <button class="btn btn-primary" onclick="location.reload()" style="width:auto">Ulangi Latihan</button>
+    </div>`;
+}
+
+// PROGRES LOCAL
+function renderProgres() {
+  const progress = loadProgress();
+  const container = document.getElementById('progres-content');
+  if (!progress.lastLatihan) {
+    container.innerHTML = `<div class="card" style="cursor:default;text-align:center"><p style="margin:1rem 0">Belum ada riwayat latihan. Kerjakan <strong>Latihan HOTS</strong> terlebih dahulu.</p></div>`;
+    return;
+  }
+  const last = progress.lastLatihan;
+  const riwayat = progress.riwayat || [];
+  container.innerHTML = `
+    <div class="stat-grid">
+      <div class="stat-box"><div class="val">${last.skor}%</div><div class="lbl">Skor terakhir</div></div>
+      <div class="stat-box"><div class="val">${last.benar}/${last.dinilai}</div><div class="lbl">Benar</div></div>
+      <div class="stat-box"><div class="val">${riwayat.length}</div><div class="lbl">Total percobaan</div></div>
+    </div>
+    <h3 style="color:var(--primary);margin-top:1.5rem">Riwayat Latihan (10 terakhir)</h3>
+    <table>
+      <thead><tr><th>Tanggal</th><th>Benar</th><th>Salah</th><th>Skor</th></tr></thead>
+      <tbody>
+        ${riwayat.slice().reverse().map(r => `
+          <tr>
+            <td>${new Date(r.tanggal).toLocaleString('id-ID', {dateStyle:'short', timeStyle:'short'})}</td>
+            <td style="color:green">${r.benar}</td>
+            <td style="color:red">${r.salah}</td>
+            <td><b>${r.skor}%</b></td>
+          </tr>
+        `).join('')}
+      </tbody>
+    </table>
+    <p style="font-size:.8rem;color:var(--muted);margin-top:1rem">ℹ️ Progres tersimpan di perangkat ini saja (Local Storage). Jika Anda login di perangkat lain, progres tidak akan terbawa.</p>
+  `;
+}
+
+// INISIALISASI
+cekSesiLogin();
+})();
+</script>
+</body>
+</html>
